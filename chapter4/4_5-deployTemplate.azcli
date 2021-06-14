@@ -1,0 +1,4 @@
+az deployment group create `
+  --resource-group bicep `
+  --template-file .\4_4-bicepStaticSiteSecureParameter.bicep `
+  --parameters @4_4-bicepStaticSiteSecureParameter.parameters.json
