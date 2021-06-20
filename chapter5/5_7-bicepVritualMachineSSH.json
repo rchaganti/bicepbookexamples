@@ -1,0 +1,105 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.63.48766",
+      "templateHash": "14014448370670122802"
+    }
+  },
+  "parameters": {
+    "netInterfacePrefix": {
+      "type": "string",
+      "defaultValue": "bicep"
+    },
+    "publicIPPrefix": {
+      "type": "string",
+      "defaultValue": "bicep"
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "ubuntu20-01"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "bicepuser"
+    },
+    "passwordOrSshKeyForAuthentication": {
+      "type": "string",
+      "defaultValue": "sshkey",
+      "allowedValues": [
+        "password",
+        "sshkey"
+      ],
+      "metadata": {
+        "description": "Specify if you want to use password or sshkey for authentication"
+      }
+    },
+    "adminPasswordOrKey": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Specify a password or ssh-key based on your authentication choice"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "nicName": "[format('{0}{1}-nic', parameters('netInterfacePrefix'), parameters('vmName'))]",
+    "publicIPName": "[format('{0}{1}-pip', parameters('publicIPPrefix'), parameters('vmName'))]",
+    "osVersion": "18.04-LTS",
+    "vmSize": "Standard_B2s",
+    "osDiskType": "Standard_LRS"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-03-01",
+      "name": "[parameters('vmName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "[variables('osDiskType')]"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "[variables('osVersion')]",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPasswordOrKey')]",
+          "linuxConfiguration": "[if(equals(parameters('passwordOrSshKeyForAuthentication'), 'sshkey'), createObject('disablePasswordAuthentication', true(), 'ssh', createObject('publicKeys', createArray(createObject('path', format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername')), 'keyData', parameters('adminPasswordOrKey'))))), null())]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "vmAccess": {
+      "type": "object",
+      "value": {
+        "adminUsername": "[parameters('adminUsername')]",
+        "vmDnsFqdn": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPName')), '2021-02-01', 'full').properties.dnsSettings.fqdn]",
+        "connectCommand": "[format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPName')), '2021-02-01', 'full').properties.dnsSettings.fqdn)]"
+      }
+    }
+  }
+}
