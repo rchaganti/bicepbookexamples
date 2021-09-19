@@ -1,3 +1,4 @@
+//4_1-bicepStaticSite.bicep
 resource bicepDemo 'Microsoft.Web/staticSites@2021-01-01' = {
   name: 'bicepDemo'
   location: 'centralus'
@@ -7,7 +8,7 @@ resource bicepDemo 'Microsoft.Web/staticSites@2021-01-01' = {
   }
   properties: {
     repositoryUrl: 'https://github.com/rchaganti/bicepbookexamples'
-    repositoryToken: 'ghp_4ShBH0ABUJN'
+    repositoryToken: 'GITHUB_PAT'
     branch: 'main'
     buildProperties: {
       appLocation: '/chapter4/staticweb'
@@ -16,4 +17,3 @@ resource bicepDemo 'Microsoft.Web/staticSites@2021-01-01' = {
     }
   }
 }
-

@@ -1,3 +1,4 @@
+//4_3-bicepStaticSiteComplexParameter.bicep
 // Parameters section
 param staticSiteName string = 'bicepDemo'
 param skuName string = 'Free'
@@ -35,7 +36,7 @@ resource bicepDemo 'Microsoft.Web/staticSites@2021-01-01' = {
   }
   properties: {
     repositoryUrl: webapp.github.url
-    repositoryToken: 'ghp_4ShBH0ABUJN'
+    repositoryToken: 'GITHUB_TOKEN'
     branch: webapp.github.branch
     buildProperties: {
       appLocation: webapp.build.appLocation

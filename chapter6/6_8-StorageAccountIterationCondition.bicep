@@ -1,3 +1,4 @@
+//6_8-StorageAccountIterationCondition.bicep
 @allowed([
   'new'
   'existing'

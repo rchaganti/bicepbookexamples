@@ -1,3 +1,4 @@
+//3_7-storageAccountLock.bicep
 resource bicepstorage 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'bicepstgacct'
   location: 'eastus'

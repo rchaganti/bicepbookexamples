@@ -1,3 +1,4 @@
+//6_5-virtualNetworkArrayCollection.bicep
 param vNetPrefix string = 'bicep'
 var vNetworks = [
   {

@@ -1,3 +1,4 @@
+//6_3-storageAccountsCollection.bicep
 param saNames array = [
   'sqllondon'
   'sqlchennai'

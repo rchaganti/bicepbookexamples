@@ -1,3 +1,4 @@
+//5_7-bicepVritualMachineSSH.bicep
 param netInterfacePrefix string = 'bicep'
 param publicIPPrefix string = 'bicep'
 

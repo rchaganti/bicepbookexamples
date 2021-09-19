@@ -1,3 +1,4 @@
+//5_5-bicepNetworkInterface.bicep
 param vmName string = 'ubuntu20-01'
 param vNetPrefix string = 'bicep'
 param subnetPrefix string = 'bicep'

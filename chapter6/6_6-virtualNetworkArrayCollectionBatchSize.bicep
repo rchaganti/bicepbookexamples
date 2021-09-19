@@ -1,3 +1,4 @@
+//6_6-virtualNetworkArrayCollectionBatchSize.bicep
 param vNetPrefix string = 'bicep'
 var vNetworks = [
   {

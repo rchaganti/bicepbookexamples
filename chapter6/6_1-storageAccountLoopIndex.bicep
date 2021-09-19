@@ -1,3 +1,4 @@
+//6_1-storageAccountLoopIndex.bicep
 param resourcePrefix string = 'bicep'
 
 @minValue(2)

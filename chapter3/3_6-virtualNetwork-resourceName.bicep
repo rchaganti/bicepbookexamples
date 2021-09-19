@@ -1,3 +1,4 @@
+//3_6-virtualNetwork-resourceName.bicep
 resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = { 
   name: 'bicepvnet'
   location: 'eastus'

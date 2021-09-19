@@ -1,3 +1,4 @@
+//4_4-bicepStaticSiteSecureParameter.bicep
 @description('Specify a name for the static web app.')
 param staticSiteName string = 'bicepDemo'
 

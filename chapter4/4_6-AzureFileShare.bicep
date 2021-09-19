@@ -1,3 +1,4 @@
+//4_6-AzureFileShare.bicep
 param shareName string = 'bicepshare'
 
 @minLength(3)

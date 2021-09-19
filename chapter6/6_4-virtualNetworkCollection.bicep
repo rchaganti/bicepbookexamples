@@ -1,3 +1,4 @@
+//6_4-virtualNetworkCollection.bicep
 param vNetPrefix array = [
   '10.0.0.0/16'
 ]

@@ -1,3 +1,4 @@
+//5_1-bicepStaticSiteParamAndVar.bicep
 // Parameters section
 @secure()
 param repoToken string // This is the GitHub Personal Access Token

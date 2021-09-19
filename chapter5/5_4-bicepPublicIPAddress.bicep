@@ -1,3 +1,4 @@
+//5_4-bicepPublicIPAddress.bicep
 param vmName string = 'ubuntu20-01'
 param publicIPPrefix string = 'bicep'
 

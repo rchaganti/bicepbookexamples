@@ -1,3 +1,4 @@
+//3_12-tenantScopedDeployment.bicep
 targetScope = 'tenant'
 
 param mgName string = 'bicepmg'

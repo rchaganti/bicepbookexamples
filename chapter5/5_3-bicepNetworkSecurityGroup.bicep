@@ -1,3 +1,4 @@
+//5_3-bicepNetworkSecurityGroup.bicep
 param nsgPrefix string = 'bicep'
 
 var location = resourceGroup().location

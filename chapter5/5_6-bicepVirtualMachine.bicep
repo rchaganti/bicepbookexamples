@@ -1,3 +1,4 @@
+//5_6-bicepVirtualMachine.bicep
 param netInterfacePrefix string = 'bicep'
 param publicIPPrefix string = 'bicep'
 

@@ -1,3 +1,4 @@
+//6_2-virtualNetworkSubnetLoopIndex.bicep
 var numSubnets = 2
 var subnetPrefix = [
   '10.0.1.0/27'

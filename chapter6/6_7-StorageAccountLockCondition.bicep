@@ -1,3 +1,4 @@
+//6_7-StorageAccountLockCondition.bicep
 param storageAccountPrefix string = 'bicep'
 param enableStorageLock bool
 

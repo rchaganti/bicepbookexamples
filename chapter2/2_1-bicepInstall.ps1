@@ -1,4 +1,5 @@
-﻿[CmdletBinding()]
+﻿# 2_1-bicepInstall.ps1
+[CmdletBinding()]
 param
 (
 )

@@ -1,3 +1,4 @@
+//7_9-resourceGroupSubscriptionScope.bicep
 param resGroup string
 param subId string
 

@@ -1,3 +1,4 @@
+//7_8-resourceGroupScope.bicep
 targetScope = 'resourceGroup'
 param resGroup string
 

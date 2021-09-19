@@ -1,3 +1,4 @@
+//3_8-storageFileShare.bicep
 resource bicepstgacct 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
   name: 'bicepstgacct'
 }
