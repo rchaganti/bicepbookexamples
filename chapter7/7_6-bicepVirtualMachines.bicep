@@ -1,4 +1,4 @@
-// 7_6-bicepVirtualMachines.bicep
+//7_6-bicepVirtualMachines.bicep
 // Parameters
 param virtualMachines array = [
   {

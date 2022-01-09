@@ -1,4 +1,4 @@
-//7_5-bicepVirtualMachine.bicep
+//7_16-bicepTemplateUsingRegistries.bicep
 // Parameters
 param vmName string = 'ubuntu01'
 param vmSize string = 'Standard_B2s'
@@ -37,7 +37,7 @@ module vnet 'modules/7_1-bicepVirtualNetwork.bicep' = {
   }
 }
 
-module nsg 'modules/7_2-bicepNetworkSecurityGroup.bicep' = {
+module nsg 'ts:5073fd4c-3a1b-4559-8371-21e034f70820/bicep/nsg:1.0.0' = {
   name: '${vmName}nsg'
   params: {
     nsgPrefix: vmName
@@ -54,14 +54,14 @@ module nsg 'modules/7_2-bicepNetworkSecurityGroup.bicep' = {
   }
 }
 
-module pip 'modules/7_3-bicepPublicIp.bicep' = {
+module pip 'ts:5073fd4c-3a1b-4559-8371-21e034f70820/bicep/pip:1.0.0' = {
   name: '${vmName}pip'
   params: {
     vmName: vmName
   }
 }
 
-module nic 'modules/7_4-bicepNetworkInterfaces.bicep' = {
+module nic 'br:acr6axmw2qxc2xnq.azurecr.io/bicep/modules/nic:v1' = {
   name: '${vmName}nic'
   params: {
     netInterfacePrefix: vmName

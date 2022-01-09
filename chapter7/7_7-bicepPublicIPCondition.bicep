@@ -1,4 +1,4 @@
-// 7_7-bicepPublicIPCondition.bicep
+//7_7-bicepPublicIPCondition.bicep
 // Parameters
 param vmName string
 

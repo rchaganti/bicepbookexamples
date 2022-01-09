@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1124.51302",
+      "templateHash": "14604280952990088392"
+    }
+  },
+  "parameters": {
+    "vmName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "pipName": "[format('{0}pip', parameters('vmName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}pip', parameters('vmName'))]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "publicIPAddressVersion": "IPv4",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('vmName')]"
+        },
+        "idleTimeoutInMinutes": 10
+      }
+    }
+  ],
+  "outputs": {
+    "pipInfo": {
+      "type": "object",
+      "value": {
+        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}pip', parameters('vmName')))]",
+        "dnsFqdn": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2021-02-01', 'full').properties.dnsSettings.fqdn]"
+      }
+    }
+  }
+}
