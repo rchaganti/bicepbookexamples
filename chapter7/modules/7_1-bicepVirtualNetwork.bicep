@@ -9,11 +9,12 @@ param vNetNewOrExisting string
 param vNetName string
 param vNetAddressPrefix string
 param subnetInfo object
+param rgLocation string = resourceGroup().location
 
 // Resources
 resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = if (vNetNewOrExisting == 'new') {
   name: vNetName
-  location: resourceGroup().location
+  location: rgLocation
   properties: {
     addressSpace: {
       addressPrefixes: [
