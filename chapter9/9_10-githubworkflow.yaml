@@ -1,0 +1,34 @@
+name: provision-stg-acct
+
+on: 
+  push:
+    branches: 
+      - main
+
+env:
+  AZURE_RESOURCEGROUP_NAME: bicep
+
+jobs:
+  linter: 
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Lint Bicep Template
+      run: az bicep build --file main.bicep
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [linter]
+    steps:
+    - uses: azure/login@v1
+      name: Sign in to Azure
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}        
+    - uses: actions/checkout@v2  
+    - uses: azure/arm-deploy@v1
+      name: Provision Storage Account
+      with:
+        failOnStdErr: false
+        deploymentName: ${{ github.run_number }}
+        resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+        template: ./main.bicep
