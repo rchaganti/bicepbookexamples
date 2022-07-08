@@ -1,0 +1,13 @@
+{
+    "analyzers": {
+      "core": {
+        "enabled": true|false,
+        "verbose": false|true,
+        "rules": {
+          "rule-name": {
+            "level": "error|warning|info|off"
+          }
+      }
+    }
+  }
+}

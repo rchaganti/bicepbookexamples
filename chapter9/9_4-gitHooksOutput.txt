@@ -1,0 +1,19 @@
+PS C:\temp\myBicepProject> dir .\.git\hooks\
+
+    Directory: C:\temp\myBicepProject\.git\hooks
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---            7/8/2022 10:47 AM            478 applypatch-msg.sample
+-a---            7/8/2022 10:47 AM            896 commit-msg.sample
+-a---            7/8/2022 10:47 AM           4655 fsmonitor-watchman.sample
+-a---            7/8/2022 10:47 AM            189 post-update.sample
+-a---            7/8/2022 10:47 AM            424 pre-applypatch.sample
+-a---            7/8/2022 10:47 AM           1643 pre-commit.sample
+-a---            7/8/2022 10:47 AM            416 pre-merge-commit.sample
+-a---            7/8/2022 10:47 AM           1374 pre-push.sample
+-a---            7/8/2022 10:47 AM           4898 pre-rebase.sample
+-a---            7/8/2022 10:47 AM            544 pre-receive.sample
+-a---            7/8/2022 10:47 AM           1492 prepare-commit-msg.sample
+-a---            7/8/2022 10:47 AM           2783 push-to-checkout.sample
+-a---            7/8/2022 10:47 AM           3650 update.sample
