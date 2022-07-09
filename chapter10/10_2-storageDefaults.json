@@ -1,0 +1,7 @@
+{
+    "sku": "Standard_LRS",
+    "kind": "StorageV2",
+    "properties": {
+        "minimumTlsVersion": "TLS1_2"
+    }
+}
