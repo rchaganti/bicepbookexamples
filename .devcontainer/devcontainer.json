@@ -11,10 +11,6 @@
 		},
 		"azure-cli": {
 			"version": "latest"
-		},
-		"git": {
-			"version": "latest",
-			"ppa": false
 		}
 	},
 	"remoteUser": "vscode"
