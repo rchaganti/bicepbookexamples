@@ -16,6 +16,8 @@ param storageFileShareName string = 'temp'
 @description('Number of control plane VMs.')
 @allowed([
   1
+  3
+  5
 ])
 param numCP int = 1
 

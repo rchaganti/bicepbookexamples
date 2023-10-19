@@ -1,4 +1,4 @@
-// Name        : managedRunCmd.bicep
+// Name        : linuxScript.bicep
 // Description : Runs a Linux shell script as managed run command in a Linux VM
 // Version     : 1.0.0
 // Author      : github.com/rchaganti
@@ -23,7 +23,7 @@ param scriptContent string
 param scriptParams array = []
 
 @description('Protected parameters to pass to the script.')
-param protectedScriptParams array = []
+param protecttedScriptParams array = []
 
 @description('Script timeout in seconds. 300 is default.')
 param timeout int = 300
@@ -40,7 +40,7 @@ resource mrc 'Microsoft.Compute/virtualMachines/runCommands@2022-08-01' = {
   properties: {
     asyncExecution: asyncExec
     parameters: scriptParams
-    protectedParameters: protectedScriptParams
+    protectedParameters: protecttedScriptParams
     source: scriptSource
     timeoutInSeconds: timeout
   }

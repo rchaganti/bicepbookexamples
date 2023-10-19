@@ -1,10 +1,14 @@
 {
-	"image": "mcr.microsoft.com/vscode/devcontainers/base",
-	"settings": {},
-	"extensions": [
-		"ms-vscode.azure-account",
-		"ms-azuretools.vscode-bicep"
-	],
+	"image": "mcr.microsoft.com/vscode/devcontainers/base",	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.azure-account",
+				"ms-azuretools.vscode-bicep"
+			]
+		},
+		"settings": {}
+	},
 	"features": {
 		"rchaganti/vsc-devcontainer-features/azurebicep" : {
 			"version": "latest"
