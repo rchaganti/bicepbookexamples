@@ -28,10 +28,10 @@ permissions:
 steps:
   - name: Install Bicep and run linting
     run: |
-      # Install Bicep CLI
-      curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-      chmod +x /usr/local/bin/bicep
-      BICEP_VERSION=$(bicep --version 2>&1)
+      # Install Bicep CLI to workspace (container user cannot write to /usr/local/bin)
+      curl -Lo ${GITHUB_WORKSPACE}/bicep-cli https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+      chmod +x ${GITHUB_WORKSPACE}/bicep-cli
+      BICEP_VERSION=$(${GITHUB_WORKSPACE}/bicep-cli --version 2>&1)
       echo "Installed: ${BICEP_VERSION}"
 
       # Fetch latest release info
@@ -55,7 +55,7 @@ steps:
         REL_PATH="${f#${GITHUB_WORKSPACE}/}"
         echo "" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
         echo "--- FILE: ${REL_PATH} ---" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
-        OUTPUT=$(bicep build "$f" --stdout 2>&1 >/dev/null || true)
+        OUTPUT=$(${GITHUB_WORKSPACE}/bicep-cli build "$f" --stdout 2>&1 >/dev/null || true)
         if [ -n "$OUTPUT" ]; then
           echo "$OUTPUT" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
           if echo "$OUTPUT" | grep -qi "error"; then
