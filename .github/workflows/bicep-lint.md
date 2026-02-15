@@ -25,22 +25,27 @@ permissions:
   issues: read
   pull-requests: read
 
+steps:
+  - name: Install Bicep CLI
+    run: |
+      curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+      chmod +x ./bicep
+      sudo mv ./bicep /usr/local/bin/bicep
+      bicep --version
+
 tools:
   edit:
   bash:
-    - "az *"
     - "bicep *"
-    - "curl *"
     - "find *"
     - "jq *"
     - "cat *"
     - "echo *"
-    - "mkdir *"
     - "ls *"
     - "diff *"
-    - "apt-get *"
-    - "sudo *"
-    - "dotnet *"
+    - "python3 *"
+    - "chmod *"
+    - "bash *"
   web-fetch:
   github:
     toolsets: [repos, issues, pull_requests]
@@ -62,24 +67,15 @@ safe-outputs:
 
 # Bicep Schema and Feature Check
 
-You are a Bicep linting and schema validation agent. Your job is to check all `.bicep` files in this repository for issues and report on available feature updates.
+You are a Bicep linting and schema validation agent. The Bicep CLI has already been pre-installed for you. Your job is to check all `.bicep` files in this repository for issues and report on available feature updates.
 
-## Step 1: Install the latest Bicep CLI
+## Step 1: Verify Bicep CLI
 
-Install the latest version of the Azure Bicep CLI:
-
-```
-curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-chmod +x ./bicep
-sudo mv ./bicep /usr/local/bin/bicep
-bicep --version
-```
-
-Record the installed Bicep version for the report.
+Run `bicep --version` to confirm the CLI is available and record the version for the report.
 
 ## Step 2: Check the latest Bicep release
 
-Fetch the latest release information from the Bicep GitHub repository at `https://api.github.com/repos/Azure/bicep/releases/latest`. Extract:
+Use `web_fetch` to get release information from `https://api.github.com/repos/Azure/bicep/releases/latest`. Extract:
 
 - The latest version tag
 - The release date
@@ -87,23 +83,17 @@ Fetch the latest release information from the Bicep GitHub repository at `https:
 
 ## Step 3: Lint all Bicep files
 
-Find all `.bicep` files in the repository and run `bicep build` on each one. This will catch:
-
-- Syntax errors
-- Schema validation issues
-- Linting rule violations
-- Deprecated API versions
-- Missing required properties
+Find all `.bicep` files in the repository and run `bicep build` on each one to catch schema and linting issues.
 
 For each file, run:
 
 ```
-bicep build <file-path> --stdout > /dev/null
+bicep build <file-path> --stdout 2>&1
 ```
 
-Capture both stdout and stderr. Record any warnings or errors per file.
+Capture the output. Record any warnings or errors per file.
 
-**Important**: Some files may reference external modules (Azure Container Registry, template specs) or use experimental features. If a build fails due to a missing external module or registry reference, note it as an **external dependency** rather than a schema error. Focus on issues that can be resolved within the repository.
+**Important**: Some files reference external modules (Azure Container Registry, template specs) or use experimental features. If a build fails due to a missing external module or registry reference, note it as an **external dependency** rather than a schema error. Focus on issues that can be resolved within the repository.
 
 ## Step 4: Check for bicepconfig.json issues
 
