@@ -48,6 +48,7 @@ tools:
 network:
   allowed:
     - "defaults"
+    - "github"
 
 safe-outputs:
   allowed-github-references: ["repo"]
