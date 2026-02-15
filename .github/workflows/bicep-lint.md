@@ -26,28 +26,69 @@ permissions:
   pull-requests: read
 
 steps:
-  - name: Install Bicep CLI to workspace
+  - name: Install Bicep and run linting
     run: |
-      curl -Lo ${GITHUB_WORKSPACE}/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-      chmod +x ${GITHUB_WORKSPACE}/bicep
-      ${GITHUB_WORKSPACE}/bicep --version
-      echo "Bicep installed to workspace at ${GITHUB_WORKSPACE}/bicep"
+      # Install Bicep CLI
+      curl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+      chmod +x /usr/local/bin/bicep
+      BICEP_VERSION=$(bicep --version 2>&1)
+      echo "Installed: ${BICEP_VERSION}"
+
+      # Fetch latest release info
+      curl -sL https://api.github.com/repos/Azure/bicep/releases/latest > ${GITHUB_WORKSPACE}/bicep-release.json
+
+      # Create results directory
+      mkdir -p ${GITHUB_WORKSPACE}/lint-results
+
+      # Save version info
+      echo "${BICEP_VERSION}" > ${GITHUB_WORKSPACE}/lint-results/version.txt
+
+      # Lint all bicep files and capture results
+      echo "=== BICEP LINT RESULTS ===" > ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+      TOTAL=0
+      ERRORS=0
+      WARNINGS=0
+      CLEAN=0
+
+      for f in $(find ${GITHUB_WORKSPACE} -name "*.bicep" -not -path "*/lint-results/*"); do
+        TOTAL=$((TOTAL + 1))
+        REL_PATH="${f#${GITHUB_WORKSPACE}/}"
+        echo "" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+        echo "--- FILE: ${REL_PATH} ---" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+        OUTPUT=$(bicep build "$f" --stdout 2>&1 >/dev/null || true)
+        if [ -n "$OUTPUT" ]; then
+          echo "$OUTPUT" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+          if echo "$OUTPUT" | grep -qi "error"; then
+            ERRORS=$((ERRORS + 1))
+            echo "STATUS: ERROR" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+          else
+            WARNINGS=$((WARNINGS + 1))
+            echo "STATUS: WARNING" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+          fi
+        else
+          echo "STATUS: CLEAN" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt
+          CLEAN=$((CLEAN + 1))
+        fi
+      done
+
+      # Save summary
+      echo "TOTAL=${TOTAL}" > ${GITHUB_WORKSPACE}/lint-results/summary.txt
+      echo "ERRORS=${ERRORS}" >> ${GITHUB_WORKSPACE}/lint-results/summary.txt
+      echo "WARNINGS=${WARNINGS}" >> ${GITHUB_WORKSPACE}/lint-results/summary.txt
+      echo "CLEAN=${CLEAN}" >> ${GITHUB_WORKSPACE}/lint-results/summary.txt
+
+      echo "Linting complete: ${TOTAL} files, ${ERRORS} errors, ${WARNINGS} warnings, ${CLEAN} clean"
 
 tools:
   edit:
   bash:
-    - "./bicep *"
-    - "find *"
-    - "jq *"
     - "cat *"
     - "echo *"
+    - "find *"
     - "ls *"
-    - "diff *"
+    - "jq *"
     - "python3 *"
     - "bash *"
-    - "chmod *"
-    - "curl *"
-  web-fetch:
   github:
     toolsets: [repos, issues, pull_requests]
 
@@ -68,64 +109,38 @@ safe-outputs:
 
 # Bicep Schema and Feature Check
 
-You are a Bicep linting and schema validation agent. Your job is to check all `.bicep` files in this repository for issues and report on available feature updates.
+You are a Bicep linting and schema validation agent. The Bicep CLI has already been run on all `.bicep` files BEFORE you started. All results are saved in the `lint-results/` directory. Your job is to analyze these results and generate a comprehensive report.
 
-## Step 1: Verify Bicep CLI
+## Step 1: Read Bicep version and lint results
 
-The Bicep CLI binary has been pre-downloaded to the workspace root. Verify it works by running:
+Read the pre-computed results:
 
-```
-./bicep --version
-```
+1. Read `lint-results/version.txt` for the installed Bicep CLI version
+2. Read `lint-results/summary.txt` for the total/error/warning/clean counts
+3. Read `lint-results/lint-output.txt` for the detailed per-file lint results
 
-If this fails, download it yourself:
+## Step 2: Read latest Bicep release info
 
-```
-curl -Lo ./bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-chmod +x ./bicep
-./bicep --version
-```
+Read `bicep-release.json` in the workspace root. This contains the latest Bicep release from GitHub. Extract:
 
-Record the installed Bicep version for the report.
+- The `tag_name` (version)
+- The `published_at` (release date)
+- Key highlights from `body` (release notes: new features, deprecations, breaking changes)
 
-**IMPORTANT**: Always use `./bicep` (not `bicep`) to run the Bicep CLI throughout this workflow.
+## Step 3: Review bicepconfig.json files
 
-## Step 2: Check the latest Bicep release
-
-Use the `web_fetch` tool to fetch `https://api.github.com/repos/Azure/bicep/releases/latest` and extract:
-
-- The latest version tag
-- The release date
-- Key highlights from the release notes (new features, deprecations, breaking changes)
-
-## Step 3: Lint all Bicep files
-
-Find all `.bicep` files in the repository and run `./bicep build` on each one to catch schema and linting issues.
-
-For each file, run:
-
-```
-./bicep build <file-path> --stdout 2>&1
-```
-
-Capture the output. Record any warnings or errors per file.
-
-**Important**: Some files reference external modules (Azure Container Registry, template specs) or use experimental features. If a build fails due to a missing external module or registry reference, note it as an **external dependency** rather than a schema error. Focus on issues that can be resolved within the repository.
-
-## Step 4: Check for bicepconfig.json issues
-
-Locate all `bicepconfig.json` files in the repository and review them for:
+Read all `bicepconfig.json` files in the repository and review them for:
 
 - Deprecated configuration options
 - Experimental features that have been promoted to stable in the latest Bicep release
 - Missing recommended linting rules
 - Invalid or outdated analyzer rule names
 
-## Step 5: Check for API version currency
+## Step 4: Check for API version currency
 
-For each `.bicep` file, examine the resource declarations and check if the API versions used are current. Flag any resources using API versions that are more than 2 years old as candidates for update.
+Examine the `.bicep` files and check if the API versions used in resource declarations are current. Flag any resources using API versions that are more than 2 years old (before 2024) as candidates for update.
 
-## Step 6: Generate the report
+## Step 5: Generate the report
 
 Create a summary issue with the following sections:
 
@@ -135,7 +150,7 @@ Create a summary issue with the following sections:
 2. **Linting Results Summary**: Total files scanned, files with errors, files with warnings, clean files
 3. **Errors**: List each file with errors, including the specific error messages
 4. **Warnings**: List each file with warnings, including the specific warning messages
-5. **External Dependencies**: Files that reference external modules or registries
+5. **External Dependencies**: Files that reference external modules or registries (errors about missing modules/registries)
 6. **Configuration Review**: Findings from bicepconfig.json analysis
 7. **API Version Updates**: Resources using outdated API versions with recommended updates
 8. **Feature Opportunities**: New Bicep features from recent releases that could benefit this codebase (e.g., new decorators, improved type system features, new built-in functions)

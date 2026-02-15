@@ -23,7 +23,7 @@
 #
 # Checks all .bicep files in the repository for schema issues, linting errors, and feature updates based on the latest Azure Bicep release.
 #
-# frontmatter-hash: 007ff04a373774fc126834ac32d24d81e286aac63516ed1c0f58b34ca5f94c9a
+# frontmatter-hash: f4a84ec9bca89490feaf819365ebbda626296211e26122d977af44f3d0b7726e
 
 name: "Bicep Schema and Feature Check"
 "on":
@@ -114,12 +114,8 @@ jobs:
           persist-credentials: false
       - name: Create gh-aw temp directory
         run: bash /opt/gh-aw/actions/create_gh_aw_tmp_dir.sh
-      - name: Install Bicep CLI to workspace
-        run: |-
-          curl -Lo ${GITHUB_WORKSPACE}/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-          chmod +x ${GITHUB_WORKSPACE}/bicep
-          ${GITHUB_WORKSPACE}/bicep --version
-          echo "Bicep installed to workspace at ${GITHUB_WORKSPACE}/bicep"
+      - name: Install Bicep and run linting
+        run: "# Install Bicep CLI\ncurl -Lo /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64\nchmod +x /usr/local/bin/bicep\nBICEP_VERSION=$(bicep --version 2>&1)\necho \"Installed: ${BICEP_VERSION}\"\n\n# Fetch latest release info\ncurl -sL https://api.github.com/repos/Azure/bicep/releases/latest > ${GITHUB_WORKSPACE}/bicep-release.json\n\n# Create results directory\nmkdir -p ${GITHUB_WORKSPACE}/lint-results\n\n# Save version info\necho \"${BICEP_VERSION}\" > ${GITHUB_WORKSPACE}/lint-results/version.txt\n\n# Lint all bicep files and capture results\necho \"=== BICEP LINT RESULTS ===\" > ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\nTOTAL=0\nERRORS=0\nWARNINGS=0\nCLEAN=0\n\nfor f in $(find ${GITHUB_WORKSPACE} -name \"*.bicep\" -not -path \"*/lint-results/*\"); do\n  TOTAL=$((TOTAL + 1))\n  REL_PATH=\"${f#${GITHUB_WORKSPACE}/}\"\n  echo \"\" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\n  echo \"--- FILE: ${REL_PATH} ---\" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\n  OUTPUT=$(bicep build \"$f\" --stdout 2>&1 >/dev/null || true)\n  if [ -n \"$OUTPUT\" ]; then\n    echo \"$OUTPUT\" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\n    if echo \"$OUTPUT\" | grep -qi \"error\"; then\n      ERRORS=$((ERRORS + 1))\n      echo \"STATUS: ERROR\" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\n    else\n      WARNINGS=$((WARNINGS + 1))\n      echo \"STATUS: WARNING\" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\n    fi\n  else\n    echo \"STATUS: CLEAN\" >> ${GITHUB_WORKSPACE}/lint-results/lint-output.txt\n    CLEAN=$((CLEAN + 1))\n  fi\ndone\n\n# Save summary\necho \"TOTAL=${TOTAL}\" > ${GITHUB_WORKSPACE}/lint-results/summary.txt\necho \"ERRORS=${ERRORS}\" >> ${GITHUB_WORKSPACE}/lint-results/summary.txt\necho \"WARNINGS=${WARNINGS}\" >> ${GITHUB_WORKSPACE}/lint-results/summary.txt\necho \"CLEAN=${CLEAN}\" >> ${GITHUB_WORKSPACE}/lint-results/summary.txt\n\necho \"Linting complete: ${TOTAL} files, ${ERRORS} errors, ${WARNINGS} warnings, ${CLEAN} clean\"\n"
 
       - name: Configure Git credentials
         env:
@@ -641,14 +637,10 @@ jobs:
         # Copilot CLI tool arguments (sorted):
         # --allow-tool github
         # --allow-tool safeoutputs
-        # --allow-tool shell(./bicep *)
         # --allow-tool shell(bash *)
         # --allow-tool shell(cat *)
         # --allow-tool shell(cat)
-        # --allow-tool shell(chmod *)
-        # --allow-tool shell(curl *)
         # --allow-tool shell(date)
-        # --allow-tool shell(diff *)
         # --allow-tool shell(echo *)
         # --allow-tool shell(echo)
         # --allow-tool shell(find *)
@@ -664,13 +656,12 @@ jobs:
         # --allow-tool shell(uniq)
         # --allow-tool shell(wc)
         # --allow-tool shell(yq)
-        # --allow-tool web_fetch
         # --allow-tool write
         timeout-minutes: 20
         run: |
           set -o pipefail
           sudo -E awf --env-all --container-workdir "${GITHUB_WORKSPACE}" --allow-domains '*.githubusercontent.com,api.business.githubcopilot.com,api.enterprise.githubcopilot.com,api.github.com,api.githubcopilot.com,api.individual.githubcopilot.com,api.snapcraft.io,archive.ubuntu.com,azure.archive.ubuntu.com,codeload.github.com,crl.geotrust.com,crl.globalsign.com,crl.identrust.com,crl.sectigo.com,crl.thawte.com,crl.usertrust.com,crl.verisign.com,crl3.digicert.com,crl4.digicert.com,crls.ssl.com,github-cloud.githubusercontent.com,github-cloud.s3.amazonaws.com,github.com,github.githubassets.com,host.docker.internal,json-schema.org,json.schemastore.org,keyserver.ubuntu.com,lfs.github.com,objects.githubusercontent.com,ocsp.digicert.com,ocsp.geotrust.com,ocsp.globalsign.com,ocsp.identrust.com,ocsp.sectigo.com,ocsp.ssl.com,ocsp.thawte.com,ocsp.usertrust.com,ocsp.verisign.com,packagecloud.io,packages.cloud.google.com,packages.microsoft.com,ppa.launchpad.net,raw.githubusercontent.com,registry.npmjs.org,s.symcb.com,s.symcd.com,security.ubuntu.com,telemetry.enterprise.githubcopilot.com,ts-crl.ws.symantec.com,ts-ocsp.ws.symantec.com' --log-level info --proxy-logs-dir /tmp/gh-aw/sandbox/firewall/logs --enable-host-access --image-tag 0.18.0 --skip-pull \
-            -- '/usr/local/bin/copilot --add-dir /tmp/gh-aw/ --log-level all --log-dir /tmp/gh-aw/sandbox/agent/logs/ --add-dir "${GITHUB_WORKSPACE}" --disable-builtin-mcps --allow-tool github --allow-tool safeoutputs --allow-tool '\''shell(./bicep *)'\'' --allow-tool '\''shell(bash *)'\'' --allow-tool '\''shell(cat *)'\'' --allow-tool '\''shell(cat)'\'' --allow-tool '\''shell(chmod *)'\'' --allow-tool '\''shell(curl *)'\'' --allow-tool '\''shell(date)'\'' --allow-tool '\''shell(diff *)'\'' --allow-tool '\''shell(echo *)'\'' --allow-tool '\''shell(echo)'\'' --allow-tool '\''shell(find *)'\'' --allow-tool '\''shell(grep)'\'' --allow-tool '\''shell(head)'\'' --allow-tool '\''shell(jq *)'\'' --allow-tool '\''shell(ls *)'\'' --allow-tool '\''shell(ls)'\'' --allow-tool '\''shell(pwd)'\'' --allow-tool '\''shell(python3 *)'\'' --allow-tool '\''shell(sort)'\'' --allow-tool '\''shell(tail)'\'' --allow-tool '\''shell(uniq)'\'' --allow-tool '\''shell(wc)'\'' --allow-tool '\''shell(yq)'\'' --allow-tool web_fetch --allow-tool write --allow-all-paths --share /tmp/gh-aw/sandbox/agent/logs/conversation.md --prompt "$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"${GH_AW_MODEL_AGENT_COPILOT:+ --model "$GH_AW_MODEL_AGENT_COPILOT"}' \
+            -- '/usr/local/bin/copilot --add-dir /tmp/gh-aw/ --log-level all --log-dir /tmp/gh-aw/sandbox/agent/logs/ --add-dir "${GITHUB_WORKSPACE}" --disable-builtin-mcps --allow-tool github --allow-tool safeoutputs --allow-tool '\''shell(bash *)'\'' --allow-tool '\''shell(cat *)'\'' --allow-tool '\''shell(cat)'\'' --allow-tool '\''shell(date)'\'' --allow-tool '\''shell(echo *)'\'' --allow-tool '\''shell(echo)'\'' --allow-tool '\''shell(find *)'\'' --allow-tool '\''shell(grep)'\'' --allow-tool '\''shell(head)'\'' --allow-tool '\''shell(jq *)'\'' --allow-tool '\''shell(ls *)'\'' --allow-tool '\''shell(ls)'\'' --allow-tool '\''shell(pwd)'\'' --allow-tool '\''shell(python3 *)'\'' --allow-tool '\''shell(sort)'\'' --allow-tool '\''shell(tail)'\'' --allow-tool '\''shell(uniq)'\'' --allow-tool '\''shell(wc)'\'' --allow-tool '\''shell(yq)'\'' --allow-tool write --allow-all-paths --share /tmp/gh-aw/sandbox/agent/logs/conversation.md --prompt "$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"${GH_AW_MODEL_AGENT_COPILOT:+ --model "$GH_AW_MODEL_AGENT_COPILOT"}' \
             2>&1 | tee /tmp/gh-aw/agent-stdio.log
         env:
           COPILOT_AGENT_RUNNER_TYPE: STANDALONE
