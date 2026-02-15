@@ -26,17 +26,17 @@ permissions:
   pull-requests: read
 
 steps:
-  - name: Install Bicep CLI
+  - name: Install Bicep CLI to workspace
     run: |
-      curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-      chmod +x ./bicep
-      sudo mv ./bicep /usr/local/bin/bicep
-      bicep --version
+      curl -Lo ${GITHUB_WORKSPACE}/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+      chmod +x ${GITHUB_WORKSPACE}/bicep
+      ${GITHUB_WORKSPACE}/bicep --version
+      echo "Bicep installed to workspace at ${GITHUB_WORKSPACE}/bicep"
 
 tools:
   edit:
   bash:
-    - "bicep *"
+    - "./bicep *"
     - "find *"
     - "jq *"
     - "cat *"
@@ -44,8 +44,9 @@ tools:
     - "ls *"
     - "diff *"
     - "python3 *"
-    - "chmod *"
     - "bash *"
+    - "chmod *"
+    - "curl *"
   web-fetch:
   github:
     toolsets: [repos, issues, pull_requests]
@@ -67,15 +68,31 @@ safe-outputs:
 
 # Bicep Schema and Feature Check
 
-You are a Bicep linting and schema validation agent. The Bicep CLI has already been pre-installed for you. Your job is to check all `.bicep` files in this repository for issues and report on available feature updates.
+You are a Bicep linting and schema validation agent. Your job is to check all `.bicep` files in this repository for issues and report on available feature updates.
 
 ## Step 1: Verify Bicep CLI
 
-Run `bicep --version` to confirm the CLI is available and record the version for the report.
+The Bicep CLI binary has been pre-downloaded to the workspace root. Verify it works by running:
+
+```
+./bicep --version
+```
+
+If this fails, download it yourself:
+
+```
+curl -Lo ./bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+chmod +x ./bicep
+./bicep --version
+```
+
+Record the installed Bicep version for the report.
+
+**IMPORTANT**: Always use `./bicep` (not `bicep`) to run the Bicep CLI throughout this workflow.
 
 ## Step 2: Check the latest Bicep release
 
-Use `web_fetch` to get release information from `https://api.github.com/repos/Azure/bicep/releases/latest`. Extract:
+Use the `web_fetch` tool to fetch `https://api.github.com/repos/Azure/bicep/releases/latest` and extract:
 
 - The latest version tag
 - The release date
@@ -83,12 +100,12 @@ Use `web_fetch` to get release information from `https://api.github.com/repos/Az
 
 ## Step 3: Lint all Bicep files
 
-Find all `.bicep` files in the repository and run `bicep build` on each one to catch schema and linting issues.
+Find all `.bicep` files in the repository and run `./bicep build` on each one to catch schema and linting issues.
 
 For each file, run:
 
 ```
-bicep build <file-path> --stdout 2>&1
+./bicep build <file-path> --stdout 2>&1
 ```
 
 Capture the output. Record any warnings or errors per file.
