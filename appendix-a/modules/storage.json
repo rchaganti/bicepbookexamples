@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.40.2.10011",
+      "templateHash": "11029598949340561031"
+    }
+  },
+  "parameters": {
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for the storage account. This has to be globally unique."
+      }
+    },
+    "storageFileShareName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for the file share."
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location where this storage account needs to be created."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "accessTier": "Cool"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2021-04-01",
+      "name": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('storageFileShareName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "storage": {
+      "type": "object",
+      "value": {
+        "name": "[parameters('storageAccountName')]",
+        "shareUri": "[format('//{0}.file.{1}/{2}', parameters('storageAccountName'), environment().suffixes.storage, parameters('storageFileShareName'))]",
+        "storageKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01').keys[0].value]"
+      }
+    }
+  }
+}
