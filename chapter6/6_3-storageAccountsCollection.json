@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.40.2.10011",
+      "templateHash": "7851875059712145840"
+    }
+  },
+  "parameters": {
+    "saNames": {
+      "type": "array",
+      "defaultValue": [
+        "sqllondon",
+        "sqlchennai",
+        "archiveseattle"
+      ]
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "uniqueSaNames",
+        "count": "[length(parameters('saNames'))]",
+        "input": "[format('{0}{1}', parameters('saNames')[copyIndex('uniqueSaNames')], take(uniqueString(resourceGroup().id), sub(24, add(length(parameters('saNames')[copyIndex('uniqueSaNames')]), 1))))]"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "sa",
+        "count": "[length(variables('uniqueSaNames'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('uniqueSaNames')[copyIndex()]]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "accessTier": "Hot"
+      }
+    }
+  ],
+  "outputs": {
+    "saIds": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('uniqueSaNames'))]",
+        "input": "[createArray(resourceId('Microsoft.Storage/storageAccounts', variables('uniqueSaNames')[copyIndex()]))]"
+      }
+    }
+  }
+}
