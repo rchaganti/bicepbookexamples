@@ -181,6 +181,14 @@ module storageAccount 'modules/storage.bicep' = {
   }
 }
 
+// Reference the storage account to retrieve keys securely (not via module outputs)
+resource storageAccountRef 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: storageAccountName
+  dependsOn: [
+    storageAccount
+  ]
+}
+
 // Install CNI plugin
 module cniInstallMrc 'modules/managedRunCmd.bicep' = {
   name: 'CniInstallMrc'
@@ -222,7 +230,7 @@ module finalizeDeployCPMrc 'modules/managedRunCmd.bicep' = {
         value: storageAccountName
       }
       {
-        value: storageAccount.outputs.storage.storageKey
+        value: storageAccountRef.listKeys().keys[0].value
       }
       {
         value: storageAccount.outputs.storage.shareUri
@@ -250,7 +258,7 @@ module finalizeDeployWorkerMrc 'modules/managedRunCmd.bicep' = [for vm in vmObje
         value: storageAccountName
       }
       {
-        value: storageAccount.outputs.storage.storageKey
+        value: storageAccountRef.listKeys().keys[0].value
       }
       {
         value: storageAccount.outputs.storage.shareUri
