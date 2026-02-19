@@ -14,7 +14,7 @@ param storageFileShareName string
 param location string
 
 // resources
-resource sa 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
   location: location
   kind: 'StorageV2'
@@ -26,7 +26,7 @@ resource sa 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-04-01' = {
+resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-05-01' = {
   name: '${sa.name}/default/${storageFileShareName}'
 }
 
@@ -34,5 +34,7 @@ resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-0
 output storage object = {
   name: storageAccountName
   shareUri: '//${storageAccountName}.file.${environment().suffixes.storage}/${storageFileShareName}'
-  storageKey: sa.listKeys().keys[0].value
 }
+
+// Output storage account resource ID for parent template to retrieve keys securely
+output storageAccountId string = sa.id

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.63.48766",
-      "templateHash": "14014448370670122802"
+      "version": "0.40.2.10011",
+      "templateHash": "6998046193004435693"
     }
   },
   "parameters": {
@@ -25,7 +25,7 @@
       "type": "string",
       "defaultValue": "bicepuser"
     },
-    "passwordOrSshKeyForAuthentication": {
+    "authenticationType": {
       "type": "string",
       "defaultValue": "sshkey",
       "allowedValues": [
@@ -37,13 +37,12 @@
       }
     },
     "adminPasswordOrKey": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "Specify a password or ssh-key based on your authentication choice"
       }
     }
   },
-  "functions": [],
   "variables": {
     "location": "[resourceGroup().location]",
     "nicName": "[format('{0}{1}-nic', parameters('netInterfacePrefix'), parameters('vmName'))]",
@@ -87,7 +86,7 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('passwordOrSshKeyForAuthentication'), 'sshkey'), createObject('disablePasswordAuthentication', true(), 'ssh', createObject('publicKeys', createArray(createObject('path', format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername')), 'keyData', parameters('adminPasswordOrKey'))))), null())]"
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'sshkey'), createObject('disablePasswordAuthentication', true(), 'ssh', createObject('publicKeys', createArray(createObject('path', format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername')), 'keyData', parameters('adminPasswordOrKey'))))), null())]"
         }
       }
     }

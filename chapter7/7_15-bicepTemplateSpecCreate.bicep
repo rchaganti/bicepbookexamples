@@ -7,7 +7,7 @@ var templateSpecJson = loadTextContent('modules/7_2-bicepNetworkSecurityGroup.js
 
 var location = resourceGroup().location
 
-resource templateSpecName_resource 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {
+resource templateSpecName_resource 'Microsoft.Resources/templateSpecs@2022-02-01' = {
   name: templateSpecName
   location: location
   properties: {
@@ -16,11 +16,11 @@ resource templateSpecName_resource 'Microsoft.Resources/templateSpecs@2019-06-01
   }
 }
 
-resource templateSpecName_templateSpecVersion 'Microsoft.Resources/templateSpecs/versions@2019-06-01-preview' = {
+resource templateSpecName_templateSpecVersion 'Microsoft.Resources/templateSpecs/versions@2022-02-01' = {
   name: '${templateSpecName_resource.name}/${templateSpecVersion}'
   location: location
   properties: {
-    template: json(templateSpecJson)
+    mainTemplate: json(templateSpecJson)
   }
 }
 

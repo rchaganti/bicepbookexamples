@@ -10,7 +10,7 @@ param adminUsername string = 'bicepuser'
   'password'
   'sshkey'
 ])
-param passwordOrSshKeyForAuthentication string = 'sshkey'
+param authenticationType string = 'sshkey'
 
 @description('Specify a password or ssh-key based on your authentication choice')
 @secure()
@@ -57,7 +57,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = {
       computerName: vmName
       adminUsername: adminUsername
       adminPassword: adminPasswordOrKey
-      linuxConfiguration: any(passwordOrSshKeyForAuthentication == 'sshkey' ? {
+      linuxConfiguration: any(authenticationType == 'sshkey' ? {
         disablePasswordAuthentication: true
         ssh: {
           publicKeys: [
