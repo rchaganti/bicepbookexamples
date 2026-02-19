@@ -8,7 +8,7 @@ param roleAssignmentName string = guid(principalId, roleDefinitionId, resGroup)
 
 var roleID = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${roleDefinitionId}'
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' existing = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' existing = {
   name: resGroup
 }
 

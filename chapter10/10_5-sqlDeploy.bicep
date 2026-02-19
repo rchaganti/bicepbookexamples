@@ -4,7 +4,7 @@ param kvResourceGroup string = 'bicep'
 param kvName string = 'bicepkvault'
 param resLocation string = resourceGroup().location
 
-resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: kvName
   scope: resourceGroup(subscriptionId, kvResourceGroup )
 }

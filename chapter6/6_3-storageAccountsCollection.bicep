@@ -7,7 +7,7 @@ param saNames array = [
 
 var uniqueSaNames = [for sName in saNames: '${sName}${take(uniqueString(resourceGroup().id), 24 - (length(sName) + 1))}']
 
-resource sa 'Microsoft.Storage/storageAccounts@2019-04-01' = [for uSName in uniqueSaNames: {
+resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = [for uSName in uniqueSaNames: {
   name: uSName
   location: resourceGroup().location
   sku: {
